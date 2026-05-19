@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: groww-review-pulse
+    env: docker
+    region: oregon
+    plan: free
+    dockerCommand: "streamlit run src/dashboard/app.py --server.port=8501 --server.address=0.0.0.0"
+    envVars:
+      - key: GOOGLE_DOCS_ID
+        sync: false # You will need to enter this in the Render dashboard manually!
+      - key: GEMINI_API_KEY
+        sync: false
