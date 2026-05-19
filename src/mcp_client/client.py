@@ -62,6 +62,24 @@ class MCPDeliveryClient:
                 await asyncio.sleep(1)
                 await session.initialize()
                 result = await session.call_tool(tool_name, arguments)
+                
+                # Check for tool errors to prevent silent failures
+                if hasattr(result, "isError") and result.isError:
+                    error_msg = ""
+                    if hasattr(result, "content") and result.content:
+                        error_msg = " ".join([getattr(c, "text", str(c)) for c in result.content])
+                    raise Exception(error_msg or "Unknown MCP tool execution failure")
+                    
+                # Inspect text content for internal error/success statuses
+                if hasattr(result, "content") and result.content:
+                    for c in result.content:
+                        if hasattr(c, "text"):
+                            try:
+                                data = json.loads(c.text)
+                                if isinstance(data, dict) and data.get("success") is False:
+                                    raise Exception(data.get("message") or data.get("error") or "Operation failed")
+                            except json.JSONDecodeError:
+                                pass
                 return result
 
     async def deliver_to_docs(self, document_id: str, markdown_content: str):

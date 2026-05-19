@@ -133,7 +133,10 @@ class LLMClient:
         Analyze these customer reviews for {product_name}.
         
         RULES:
-        1. THEME NAMES: Use highly specific, differentiated professional phrases. AVOID generic words like "General", "Overall", or "User Experience". Instead, start with specific, versatile concepts like "Visualization Tools", "Feature Enhancements", "Specific Technical Grievances", "Pricing", or "Onboarding".
+        1. THEME NAMES: Use highly specific, formal, and professional concepts (e.g., 'Transparency Regarding Transaction Fees', 'Platform Stability during Market Hours', 'Account Verification Latency', 'User Interface Responsiveness').
+           - NEVER use the word "Analysis", "User Interaction", "Product Operations", or "General Feedback" in the theme names.
+           - NEVER use subjective adjectives like "Worst", "Best", "Great", "Good", "Bad", "Fantastic", "Terrible", "Excellent" in the theme names.
+           - Theme names must be concise (3 to 6 words) and focus strictly on concrete features, errors, or domain areas mentioned in the reviews.
         2. DIFFERENTIATION: Ensure the theme is completely distinct and hyper-focused on a specific product area or issue.
         3. SPELLING: Correct any user typos in labels (e.g. "Exalent" -> "Excellent").
         4. SUMMARY: Write EXACTLY two full sentences summarizing the theme in a highly actionable, specific manner.
