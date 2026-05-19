@@ -1,18 +1,18 @@
 import os
 from typing import List
-from openai import OpenAI
+import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
 
 class EmbeddingEngine:
-    def __init__(self, model: str = "text-embedding-3-small"):
-        self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    def __init__(self, model: str = "models/gemini-embedding-001"):
+        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
         self.model = model
 
     def get_embeddings(self, texts: List[str]) -> List[List[float]]:
         """
-        Convert a list of strings into a list of embedding vectors.
+        Convert a list of strings into a list of embedding vectors using Gemini.
         """
         if not texts:
             return []
@@ -21,13 +21,15 @@ class EmbeddingEngine:
         cleaned_texts = [t.replace("\n", " ") for t in texts]
         
         try:
-            response = self.client.embeddings.create(
-                input=cleaned_texts,
-                model=self.model
+            # Gemini has a limit on inputs per request, usually handled by the SDK
+            result = genai.embed_content(
+                model=self.model,
+                content=cleaned_texts,
+                task_type="clustering"
             )
-            return [data.embedding for data in response.data]
+            return result['embedding']
         except Exception as e:
-            print(f"Error generating embeddings: {e}")
+            print(f"Error generating embeddings with Gemini: {e}")
             return []
 
 if __name__ == "__main__":

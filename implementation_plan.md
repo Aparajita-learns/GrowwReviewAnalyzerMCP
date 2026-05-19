@@ -55,9 +55,9 @@ This plan breaks down the development of the Review Analyzer agent into five dis
 ## Phase 5: MCP Integration & CLI Orchestration
 **Goal:** Finalize delivery via MCP and provide the master end-to-end command.
 
-- [ ] **MCP Host Setup:** Connect to `google-docs-mcp` and `gmail-mcp` servers.
-- [ ] **End-to-End Orchestrator:**
-    - [ ] Link Ingest -> Process -> Summarize -> Render -> Deliver.
-    - [ ] Implement the `run` and `backfill` CLI commands.
-- [ ] **Idempotency & Auditing:** Record delivery identifiers and metadata in SQLite.
-- [ ] **Automation:** GitHub Actions / Cron configuration.
+- [x] **MCP Host Setup:** Connect to `google-docs-mcp` and `gmail-mcp` servers.
+- [x] **End-to-End Orchestrator:**
+    - [x] Link Ingest -> Process -> Summarize -> Render -> Deliver.
+    - [x] Implement the `run` and `backfill` CLI commands.
+- [x] **Idempotency & Auditing:** Record delivery identifiers and metadata in SQLite.
+- [x] **Automation:** GitHub Actions / Cron configuration.

@@ -38,14 +38,13 @@ def init_db():
     )
     ''')
 
-    # Table for delivery metadata
+    # Table for summaries (stores the PulseSummary as JSON)
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS deliveries (
+    CREATE TABLE IF NOT EXISTS summaries (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         run_id INTEGER,
-        platform TEXT NOT NULL, -- 'google_docs' or 'gmail'
-        identifier TEXT, -- section link or message id
-        delivered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        summary_json TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (run_id) REFERENCES runs (id)
     )
     ''')

@@ -1,0 +1,76 @@
+# Weekly Review Pulse — Groww — 2026-W20
+**Period:** Last 4 weeks
+**Total Reviews Analyzed:** 100
+**ID:** `pulse-groww-2026-W20`
+
+---
+### Theme Distribution
+![Theme Distribution](https://quickchart.io/chart?c=%7B%22type%22%3A%20%22donut%22%2C%20%22data%22%3A%20%7B%22labels%22%3A%20%5B%22General%20User%20Satisfaction%20and%20Positive%20Sentiment%22%2C%20%22High%20User%20Satisfaction%20and%20App%20Usability%22%2C%20%22User%20Satisfaction%20and%20Pricing%20Feedback%22%2C%20%22Platform%20Reliability%20and%20Feature%20Maturity%22%2C%20%22Theme%3A%20Happy%22%5D%2C%20%22datasets%22%3A%20%5B%7B%22data%22%3A%20%5B21%2C%2014%2C%2012%2C%2010%2C%208%5D%2C%20%22backgroundColor%22%3A%20%5B%22%2300d09c%22%2C%20%22%2300a07c%22%2C%20%22%23008060%22%2C%20%22%23006040%22%2C%20%22%23004020%22%5D%7D%5D%7D%2C%20%22options%22%3A%20%7B%22plugins%22%3A%20%7B%22legend%22%3A%20%7B%22position%22%3A%20%22bottom%22%7D%7D%7D%7D)
+
+
+## Top Themes
+
+### 1. General User Satisfaction and Positive Sentiment (21 reviews)
+The majority of users express high satisfaction with the app, frequently describing it as 'good' and 'cool.' While feedback is brief, it indicates a strong positive reception of the platform's trading capabilities and general functionality.
+
+**Representative Quotes:**
+> "Too good for trading"
+> "good work"
+> "happy"
+
+**Product Action Ideas:**
+- **Contextualized Feedback Prompts**: Implement targeted in-app surveys for users who provide brief positive ratings to identify specific strengths, such as UI simplicity or transaction speed, to better understand and replicate success.
+
+
+---
+### 2. High User Satisfaction and App Usability (14 reviews)
+Users consistently express high levels of satisfaction, frequently describing the Groww app as 'excellent,' 'superb,' and 'easy' to use. The feedback highlights a strong positive sentiment towards the overall application experience across different languages.
+
+**Representative Quotes:**
+> "nice and easy app"
+> "superb! I have no words"
+> "সত্যি !অসাধারণ এপ্লিকেশন।"
+
+**Product Action Ideas:**
+- **Community Milestone Rewards**: Capitalize on the current high user sentiment by introducing a 'Milestone' feature that rewards users with badges or lower transaction fees as they hit investment goals, further encouraging the 'amazing experience' reported by users.
+
+
+---
+### 3. User Satisfaction and Pricing Feedback (12 reviews)
+While users overwhelmingly praise Groww as the best platform in its category, there is a recurring concern regarding high transaction charges.
+
+**Representative Quotes:**
+> "Best platform"
+> "charges is very high"
+> "best app"
+
+**Product Action Ideas:**
+- **Tiered Loyalty Discounts**: Introduce a loyalty-based fee structure or a subscription model that offers reduced transaction charges for frequent traders to address the feedback regarding high costs.
+
+
+---
+### 4. Platform Reliability and Feature Maturity (10 reviews)
+While users appreciate Groww's simple onboarding and ease of use, there are significant concerns regarding technical stability during market hours, customer support responsiveness, and the lack of advanced trading features.
+
+**Representative Quotes:**
+> "easy demate opening process.. easy to buy and sell"
+> "chart are not uploaded at the time always app stuck on market time ."
+> "abhi ke lea ye third class platform hai coustomer care aur backhand team bilkul bakwas hai koi support nahi hai"
+
+**Product Action Ideas:**
+- **Technical Performance and TradingView Integration Upgrade**: Optimize server stability to prevent chart freezing during peak market hours and enhance the TradingView interface by adding requested features like visible open positions, countdown timers, and expanded global index timeframes.
+
+
+---
+### 5. Theme: Happy (8 reviews)
+Commonly mentioned: happy. This group focuses on these recurring terms.
+
+**Representative Quotes:**
+> "happy 😊"
+> "Good 👍"
+
+**Product Action Ideas:**
+- **Investigate happy**: Users are frequently mentioning this term. Detailed audit recommended.
+
+
+---

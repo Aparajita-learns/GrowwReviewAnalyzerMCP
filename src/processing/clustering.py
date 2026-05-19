@@ -4,7 +4,7 @@ import numpy as np
 from typing import List, Tuple
 
 class ClusteringEngine:
-    def __init__(self, min_cluster_size: int = 5, min_samples: int = 2):
+    def __init__(self, min_cluster_size: int = 2, min_samples: int = 1):
         self.min_cluster_size = min_cluster_size
         self.min_samples = min_samples
 
