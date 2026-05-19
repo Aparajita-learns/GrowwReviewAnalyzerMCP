@@ -25,7 +25,7 @@ class PulseOrchestrator:
         self.scrubber = PIIScrubber()
         self.mcp = MCPDeliveryClient()
 
-    async def run(self, force: bool = False):
+    async def run(self, force: bool = False, deliver_mcp: bool = True):
         """Execute the full pulse workflow."""
         print(f"Starting Pulse Run for {self.product_name} ({self.iso_week})")
         
@@ -104,62 +104,65 @@ class PulseOrchestrator:
         doc_requests = generate_docs_tree(summary)
         
         # 7. Delivery via MCP
-        print("Phase 6: Delivering via MCP...")
-        doc_id = os.getenv("GOOGLE_DOCS_ID")
-        email_to = os.getenv("STAKEHOLDER_EMAIL")
-        
-        if doc_id:
-            try:
-                print(f"Delivering to Google Doc: {doc_id}")
-                markdown_summary = generate_markdown(summary)
-                await self.mcp.deliver_to_docs(doc_id, markdown_summary)
-                
-                # Force insert Donut Chart
-                if summary.top_themes:
-                    import json
-                    from urllib.parse import quote
-                    labels = [t.name[:25] for t in summary.top_themes]
-                    counts = [t.review_count for t in summary.top_themes]
-                    # Lighter green palette
-                    colors = ['#99ffcc', '#b3ffcc', '#ccffdd', '#e6ffec', '#f2fff5']
-                    chart_config = {
-                        "type": 'donut',
-                        "data": {
-                            "labels": labels,
-                            "datasets": [{"data": counts, "backgroundColor": colors}]
-                        },
-                        "options": {"plugins": {"legend": {"display": False}}} # Use custom legend instead
-                    }
-                    chart_url = f"https://quickchart.io/chart?c={quote(json.dumps(chart_config))}"
-                    print("Inserting Donut Chart and Legend...")
-                    await self.mcp.insert_image(doc_id, chart_url)
+        if deliver_mcp:
+            print("Phase 6: Delivering via MCP...")
+            doc_id = os.getenv("GOOGLE_DOCS_ID")
+            email_to = os.getenv("STAKEHOLDER_EMAIL")
+            
+            if doc_id:
+                try:
+                    print(f"Delivering to Google Doc: {doc_id}")
+                    markdown_summary = generate_markdown(summary)
+                    await self.mcp.deliver_to_docs(doc_id, markdown_summary)
                     
-                    # Add Legend as text for better readability
-                    legend_md = "\n**Theme Distribution Legend:**\n"
-                    for i, t in enumerate(summary.top_themes):
-                        legend_md += f"- **Theme {i+1}**: {t.name}\n"
-                    await self.mcp.append_markdown_to_docs(doc_id, legend_md)
-            except Exception as e:
-                print(f"Google Docs delivery via MCP failed: {e}")
-        
-        if email_to:
-            try:
-                print(f"Sending email to: {email_to}")
-                # Create a clean plain-text summary for the email
-                email_body = f"Weekly Review Pulse: {self.product_name} ({self.iso_week})\n"
-                email_body += f"-------------------------------------------\n\n"
-                email_body += f"Analyzed {summary.total_reviews_analyzed} reviews and identified {len(summary.top_themes)} key themes.\n\n"
-                
-                for i, theme in enumerate(summary.top_themes):
-                    email_body += f"{i+1}. {theme.name} ({theme.review_count} reviews)\n"
-                    email_body += f"   {theme.summary[:100]}...\n\n"
-                
-                email_body += f"View the full report here: https://docs.google.com/document/d/{doc_id}\n\n"
-                email_body += "Best,\nPulse Engine"
-                
-                await self.mcp.send_gmail(email_to, f"Review Pulse: {self.product_name} ({self.iso_week})", email_body)
-            except Exception as e:
-                print(f"Gmail delivery via MCP failed: {e}")
+                    # Force insert Donut Chart
+                    if summary.top_themes:
+                        import json
+                        from urllib.parse import quote
+                        labels = [t.name[:25] for t in summary.top_themes]
+                        counts = [t.review_count for t in summary.top_themes]
+                        # Lighter green palette
+                        colors = ['#99ffcc', '#b3ffcc', '#ccffdd', '#e6ffec', '#f2fff5']
+                        chart_config = {
+                            "type": 'donut',
+                            "data": {
+                                "labels": labels,
+                                "datasets": [{"data": counts, "backgroundColor": colors}]
+                            },
+                            "options": {"plugins": {"legend": {"display": False}}} # Use custom legend instead
+                        }
+                        chart_url = f"https://quickchart.io/chart?c={quote(json.dumps(chart_config))}"
+                        print("Inserting Donut Chart and Legend...")
+                        await self.mcp.insert_image(doc_id, chart_url)
+                        
+                        # Add Legend as text for better readability
+                        legend_md = "\n**Theme Distribution Legend:**\n"
+                        for i, t in enumerate(summary.top_themes):
+                            legend_md += f"- **Theme {i+1}**: {t.name}\n"
+                        await self.mcp.append_markdown_to_docs(doc_id, legend_md)
+                except Exception as e:
+                    print(f"Google Docs delivery via MCP failed: {e}")
+            
+            if email_to:
+                try:
+                    print(f"Sending email to: {email_to}")
+                    # Create a clean plain-text summary for the email
+                    email_body = f"Weekly Review Pulse: {self.product_name} ({self.iso_week})\n"
+                    email_body += f"-------------------------------------------\n\n"
+                    email_body += f"Analyzed {summary.total_reviews_analyzed} reviews and identified {len(summary.top_themes)} key themes.\n\n"
+                    
+                    for i, theme in enumerate(summary.top_themes):
+                        email_body += f"{i+1}. {theme.name} ({theme.review_count} reviews)\n"
+                        email_body += f"   {theme.summary[:100]}...\n\n"
+                    
+                    email_body += f"View the full report here: https://docs.google.com/document/d/{doc_id}\n\n"
+                    email_body += "Best,\nPulse Engine"
+                    
+                    await self.mcp.send_gmail(email_to, f"Review Pulse: {self.product_name} ({self.iso_week})", email_body)
+                except Exception as e:
+                    print(f"Gmail delivery via MCP failed: {e}")
+        else:
+            print("Skipping MCP delivery phase (running in local database-only mode).")
 
         # 8. Finalize Run
         cursor.execute("UPDATE runs SET status='COMPLETED' WHERE id=?", (run_id,))

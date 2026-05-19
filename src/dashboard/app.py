@@ -168,7 +168,7 @@ def main():
                 
                 async def run_async():
                     orchestrator = PulseOrchestrator("Groww", week)
-                    await orchestrator.run(force=True)
+                    await orchestrator.run(force=True, deliver_mcp=False)
                     
                 asyncio.run(run_async())
                 st.success("Analysis completed successfully! Reloading...")
