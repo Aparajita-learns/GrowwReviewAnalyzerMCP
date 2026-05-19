@@ -95,7 +95,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Resolve DB path relative to this file's location (works both locally and on Streamlit Cloud)
-DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'reviews_pulse.db')
+DB_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'reviews_pulse.db')
 DB_PATH = os.path.abspath(DB_PATH)
 
 def get_data():
@@ -144,14 +144,45 @@ def main():
     st.title("📈 Weekly Product Pulse")
     st.subheader("Actionable Insights from Customer Reviews")
 
+    # Sidebar
+    st.sidebar.image("https://groww.in/logo-groww-dark.60f47e3a.svg", width=150)
+    st.sidebar.title("Controls")
+    
+    # Run analysis dynamically from Streamlit UI
+    run_analysis_btn = st.sidebar.button("Analyse Last Week's Reviews 📈", use_container_width=True)
+    if run_analysis_btn:
+        with st.spinner("Running review pulse analysis (fetching, scrubbing, embedding, clustering, and summarizing)..."):
+            try:
+                import asyncio
+                import sys
+                
+                # Add src to path if not present
+                src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+                if src_path not in sys.path:
+                    sys.path.append(src_path)
+                    
+                from agent.orchestrator import PulseOrchestrator
+                from datetime import datetime
+                
+                # Use current week
+                week = datetime.now().strftime("%Y-W%V")
+                
+                async def run_async():
+                    orchestrator = PulseOrchestrator("Groww", week)
+                    await orchestrator.run(force=True)
+                    
+                asyncio.run(run_async())
+                st.success("Analysis completed successfully! Reloading...")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Failed to run analysis: {e}")
+
     df = get_data()
     
     if df.empty:
-        st.warning("No data found in the database. Run the analyzer first!")
+        st.warning("No data found in the database. Click 'Analyse Last Week's Reviews' in the sidebar to run the analysis and populate the database!")
         return
 
-    # Sidebar
-    st.sidebar.image("https://groww.in/logo-groww-dark.60f47e3a.svg", width=150)
     st.sidebar.title("Filters")
     product = st.sidebar.selectbox("Product", df['source'].unique() if not df.empty else ["Groww"])
     
