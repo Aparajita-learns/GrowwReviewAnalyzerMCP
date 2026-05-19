@@ -11,6 +11,9 @@ class PulseCostExceeded(Exception):
 
 class LocalSummarizer:
     """Professional Fallback logic when AI is unavailable."""
+    def __init__(self):
+        self.used_names = set()
+
     def summarize(self, reviews: List[str]) -> Dict[str, Any]:
         from collections import Counter
         import re
@@ -18,31 +21,93 @@ class LocalSummarizer:
         # Extract keywords
         words = " ".join(reviews).lower()
         words = re.findall(r'\w{5,}', words)
-        stop_words = {'about', 'there', 'their', 'would', 'could', 'should'}
-        words = [w for w in words if w not in stop_words]
-        common = [w.title() for w, c in Counter(words).most_common(5)]
         
-        # Map crude words to professional phrases
-        name_map = {
-            "Useless": "Feature Maturity and Utility Concerns",
-            "Bad": "User Experience Friction Points",
-            "Excellent": "High General User Satisfaction",
-            "Charges": "Transparency Regarding Transaction Fees",
-            "Trading": "Platform Stability during Market Hours"
+        # We want to filter out generic and overly positive words to find the core functional topics
+        stop_words = {
+            'about', 'there', 'their', 'would', 'could', 'should', 'please', 'thanks',
+            'thank', 'groww', 'application', 'platform', 'really', 'useful', 'helpful',
+            'good', 'great', 'nice', 'best', 'fantastic', 'goooooood', 'awesome',
+            'perfect', 'superb', 'love', 'happy', 'cool', 'fine', 'excellent', 'super',
+            'first', 'second', 'using', 'every', 'other', 'another', 'people', 'users',
+            'brokerage', 'charges', 'trading', 'option', 'update', 'worst', 'waste',
+            'slow', 'account', 'money', 'deposit', 'withdrawal', 'support', 'interface',
+            'feature', 'loading', 'server'
+        }
+        # Add singulars and plurals
+        functional_map = {
+            "useless": "Feature Maturity and Utility Concerns",
+            "bad": "User Experience Friction Points",
+            "excellent": "High General User Satisfaction",
+            "charges": "Transparency Regarding Transaction Fees",
+            "charge": "Transparency Regarding Transaction Fees",
+            "trading": "Platform Stability during Market Hours",
+            "brokerage": "Transparency Regarding Transaction Fees",
+            "option": "Friction in Derivative Trading Features",
+            "options": "Friction in Derivative Trading Features",
+            "update": "Post-Release App Performance Stability",
+            "updates": "Post-Release App Performance Stability",
+            "worst": "Technical Glitches and App Downtime",
+            "waste": "Value Proposition and Utility Grievances",
+            "slow": "App Performance and Latency Issues",
+            "account": "Account Opening and Verification Hurdles",
+            "accounts": "Account Opening and Verification Hurdles",
+            "money": "Transaction Failures and Payment Concerns",
+            "deposit": "Payment Gateway and Deposit Inquiries",
+            "withdrawal": "Withdrawal Processing Latency Concerns",
+            "withdraw": "Withdrawal Processing Latency Concerns",
+            "support": "Customer Service and Query Resolution Efficiency",
+            "interface": "User Interface Design and Aesthetics",
+            "feature": "Functional Capabilities and Enhancement Requests",
+            "features": "Functional Capabilities and Enhancement Requests",
+            "loading": "Interface Rendering and Latency Issues",
+            "server": "Backend Connectivity and Server Stability"
         }
         
-        primary_word = common[0] if common else "Feedback"
-        theme_name = name_map.get(primary_word, f"Analysis of {primary_word} and User Interaction")
+        words_filtered = [w for w in words if w not in stop_words]
         
-        # Build a 2-sentence summary
-        sentence1 = f"Users are frequently discussing {primary_word} in relation to the overall platform experience."
-        sentence2 = f"The feedback suggests a focused interest on {', '.join(common[1:3])} as key factors for improvement."
+        # Count words (both filtered and functional) to find the best candidate
+        all_words_clean = [w for w in words if w in functional_map or w not in stop_words]
+        common_pairs = Counter(all_words_clean).most_common(10)
+        common = [w.title() for w, c in common_pairs]
+        
+        # Select the first keyword that yields a unique theme name
+        theme_name = None
+        primary_word = "Feedback"
+        
+        for w in common:
+            candidate_name = functional_map.get(w.lower(), f"Analysis of {w} and Product Operations")
+            if candidate_name not in self.used_names:
+                theme_name = candidate_name
+                primary_word = w
+                break
+                
+        # If all names are taken or no keywords, fallback
+        if not theme_name:
+            if common:
+                primary_word = common[0]
+                theme_name = functional_map.get(primary_word.lower(), f"Analysis of {primary_word} and Product Operations")
+            else:
+                primary_word = "App"
+                theme_name = "General Feedback and User Experience"
+                
+            # If still not unique, append a number
+            base_name = theme_name
+            counter = 1
+            while theme_name in self.used_names:
+                theme_name = f"{base_name} (Group {chr(64 + counter)})"
+                counter += 1
+                
+        self.used_names.add(theme_name)
+        
+        # Build a formal 2-sentence summary
+        sentence1 = f"Users frequently highlight issues and experiences related to {primary_word.lower()} on the platform."
+        sentence2 = f"Analysis indicates functional concerns and usability patterns around features like {', '.join(common[1:3]) if len(common) > 2 else 'overall app workflow'}."
         
         return {
             "name": theme_name,
             "summary": f"{sentence1} {sentence2}",
             "quotes": [reviews[0]] if reviews else [],
-            "action_ideas": [{"title": f"Review {primary_word} Flow", "description": "Conduct a deep dive into user interaction patterns for this area."}]
+            "action_ideas": [{"title": f"Optimize {primary_word} Flow", "description": f"Conduct a detailed review of usability and technical logs for the {primary_word.lower()} component."}]
         }
 
 class LLMClient:

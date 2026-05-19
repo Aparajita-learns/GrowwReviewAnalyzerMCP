@@ -22,11 +22,21 @@ class MCPDeliveryClient:
             cmd_parts[0] = 'npx.cmd'
             cmd_parts = ['cmd.exe', '/c'] + cmd_parts
             
+        # Configure environment variables for Google MCP servers
+        env = os.environ.copy()
+        root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+        
+        env["GMAIL_CREDENTIALS_PATH"] = os.path.join(root_dir, "credentials.json")
+        if os.path.exists(os.path.join(root_dir, "token_gmail.json")):
+            env["GMAIL_TOKEN_PATH"] = os.path.join(root_dir, "token_gmail.json")
+        else:
+            env["GMAIL_TOKEN_PATH"] = os.path.join(root_dir, "token.json")
+            
         print(f"Executing MCP Command: {' '.join(cmd_parts)}")
         params = StdioServerParameters(
             command=cmd_parts[0],
             args=cmd_parts[1:],
-            env=os.environ.copy()
+            env=env
         )
         
         async with stdio_client(params) as (read, write):
