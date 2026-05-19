@@ -36,10 +36,8 @@ env.bak/
 venv.bak/
 
 # Database
-*.db
+# Removed *.db and reviews_pulse.db so Streamlit Cloud can receive the database
 *.sqlite3
-reviews_pulse.db
-
 # VS Code
 .vscode/
 

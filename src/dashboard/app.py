@@ -94,20 +94,30 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Resolve DB path relative to this file's location (works both locally and on Streamlit Cloud)
+DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'reviews_pulse.db')
+DB_PATH = os.path.abspath(DB_PATH)
+
 def get_data():
-    conn = sqlite3.connect('reviews_pulse.db')
-    df = pd.read_sql_query("SELECT * FROM reviews_raw", conn)
-    conn.close()
-    return df
+    if not os.path.exists(DB_PATH):
+        return pd.DataFrame()
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        df = pd.read_sql_query("SELECT * FROM reviews_raw", conn)
+        conn.close()
+        return df
+    except Exception:
+        return pd.DataFrame()
 
 def get_themes(run_id=None):
-    conn = sqlite3.connect('reviews_pulse.db')
+    if not os.path.exists(DB_PATH):
+        return []
     query = "SELECT summary_json FROM summaries"
     if run_id:
         query += f" WHERE run_id = {run_id}"
     query += " ORDER BY created_at DESC LIMIT 1"
-    
     try:
+        conn = sqlite3.connect(DB_PATH)
         df = pd.read_sql_query(query, conn)
         conn.close()
         if not df.empty:
@@ -115,13 +125,14 @@ def get_themes(run_id=None):
             return json.loads(df.iloc[0]['summary_json'])['top_themes']
     except Exception as e:
         print(f"Error fetching themes: {e}")
-    return [], None
+    return []
 
 def get_latest_summary_raw():
-    conn = sqlite3.connect('reviews_pulse.db')
-    query = "SELECT summary_json FROM summaries ORDER BY created_at DESC LIMIT 1"
+    if not os.path.exists(DB_PATH):
+        return None
     try:
-        df = pd.read_sql_query(query, conn)
+        conn = sqlite3.connect(DB_PATH)
+        df = pd.read_sql_query("SELECT summary_json FROM summaries ORDER BY created_at DESC LIMIT 1", conn)
         conn.close()
         if not df.empty:
             return df.iloc[0]['summary_json']
