@@ -8,8 +8,8 @@ class MCPDeliveryClient:
     """Helper to interact with Google Docs and Gmail MCP servers."""
     
     def __init__(self):
-        self.docs_cmd = os.getenv("MCP_DOCS_COMMAND", "npx -y @modelcontextprotocol/server-google-docs")
-        self.gmail_cmd = os.getenv("MCP_GMAIL_COMMAND", "npx -y @modelcontextprotocol/server-gmail")
+        self.docs_cmd = os.getenv("MCP_DOCS_COMMAND", "npx -y @a-bonus/google-docs-mcp")
+        self.gmail_cmd = os.getenv("MCP_GMAIL_COMMAND", "npx -y @a-bonus/google-docs-mcp")
 
     async def call_tool(self, server_cmd: str, tool_name: str, arguments: dict):
         """Generic method to call a tool on an MCP server."""
