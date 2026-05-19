@@ -154,12 +154,21 @@ def main():
             try:
                 import asyncio
                 import sys
+                import importlib
                 
                 # Add src to path if not present
                 src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
                 if src_path not in sys.path:
                     sys.path.append(src_path)
-                    
+                
+                # Force reload to bypass Streamlit's module caching
+                for mod in ['agent', 'agent.orchestrator', 'mcp_client', 'mcp_client.client']:
+                    if mod in sys.modules:
+                        try:
+                            importlib.reload(sys.modules[mod])
+                        except Exception:
+                            del sys.modules[mod]
+                            
                 from agent.orchestrator import PulseOrchestrator
                 from datetime import datetime
                 
