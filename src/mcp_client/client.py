@@ -1,6 +1,7 @@
 import os
 import asyncio
 import shlex
+import json
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
@@ -26,6 +27,22 @@ class MCPDeliveryClient:
         env = os.environ.copy()
         root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
         
+        # Set XDG config directory to project root so the server finds google-docs-mcp/token.json
+        env["XDG_CONFIG_HOME"] = root_dir
+        
+        # Set client ID and secret directly in the env so credentials.json is not required by the package
+        creds_path = os.path.join(root_dir, "credentials.json")
+        if os.path.exists(creds_path):
+            try:
+                with open(creds_path, 'r') as f:
+                    creds_data = json.load(f)
+                    key_data = creds_data.get("installed") or creds_data.get("web")
+                    if key_data:
+                        env["GOOGLE_CLIENT_ID"] = key_data.get("client_id")
+                        env["GOOGLE_CLIENT_SECRET"] = key_data.get("client_secret")
+            except Exception as e:
+                print(f"Error parsing credentials.json for env injection: {e}")
+                
         env["GMAIL_CREDENTIALS_PATH"] = os.path.join(root_dir, "credentials.json")
         if os.path.exists(os.path.join(root_dir, "token_gmail.json")):
             env["GMAIL_TOKEN_PATH"] = os.path.join(root_dir, "token_gmail.json")

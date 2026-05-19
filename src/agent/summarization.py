@@ -22,22 +22,30 @@ class LocalSummarizer:
         words = " ".join(reviews).lower()
         words = re.findall(r'\w{5,}', words)
         
-        # We want to filter out generic and overly positive words to find the core functional topics
+        # We want to filter out generic, grammatical, and overly positive filler words
         stop_words = {
             'about', 'there', 'their', 'would', 'could', 'should', 'please', 'thanks',
             'thank', 'groww', 'application', 'platform', 'really', 'useful', 'helpful',
             'good', 'great', 'nice', 'best', 'fantastic', 'goooooood', 'awesome',
             'perfect', 'superb', 'love', 'happy', 'cool', 'fine', 'excellent', 'super',
             'first', 'second', 'using', 'every', 'other', 'another', 'people', 'users',
-            'brokerage', 'charges', 'trading', 'option', 'update', 'worst', 'waste',
-            'slow', 'account', 'money', 'deposit', 'withdrawal', 'support', 'interface',
-            'feature', 'loading', 'server'
+            'app', 'apps', 'very', 'much', 'more', 'most', 'some', 'many', 'just', 'even',
+            'like', 'than', 'this', 'that', 'with', 'from', 'your', 'their', 'them',
+            'nice', 'good', 'fine', 'okay', 'star', 'stars', 'rate', 'rating', 'give',
+            'given', 'five', 'four', 'three', 'two', 'one', 'zero', 'would', 'should',
+            'could', 'cannot', 'cant', 'wont', 'dont', 'doesnt'
         }
-        # Add singulars and plurals
+        # Map specific functional keywords and potential leaks to formal categories
         functional_map = {
             "useless": "Feature Maturity and Utility Concerns",
             "bad": "User Experience Friction Points",
             "excellent": "High General User Satisfaction",
+            "fantastic": "High General User Satisfaction",
+            "great": "High General User Satisfaction",
+            "goooooood": "High General User Satisfaction",
+            "good": "High General User Satisfaction",
+            "awesome": "High General User Satisfaction",
+            "superb": "High General User Satisfaction",
             "charges": "Transparency Regarding Transaction Fees",
             "charge": "Transparency Regarding Transaction Fees",
             "trading": "Platform Stability during Market Hours",
@@ -63,10 +71,8 @@ class LocalSummarizer:
             "server": "Backend Connectivity and Server Stability"
         }
         
-        words_filtered = [w for w in words if w not in stop_words]
-        
-        # Count words (both filtered and functional) to find the best candidate
-        all_words_clean = [w for w in words if w in functional_map or w not in stop_words]
+        # Clean words list by filtering out all stop words
+        all_words_clean = [w for w in words if w not in stop_words]
         common_pairs = Counter(all_words_clean).most_common(10)
         common = [w.title() for w, c in common_pairs]
         

@@ -52,7 +52,7 @@ class PulseOrchestrator:
         all_reviews = []
         if self.product_name.lower() == "groww":
             gp = GooglePlayIngestor("com.nextbillion.groww")
-            all_reviews.extend(gp.fetch_reviews(weeks_ago=4, max_count=100))
+            all_reviews.extend(gp.fetch_reviews(weeks_ago=4, max_count=300))
             
             # App Store logic (omitted for speed in this demo, but same pattern)
             # as = AppStoreIngestor("1404142643")

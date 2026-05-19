@@ -154,7 +154,12 @@ def main():
     
     creds_json = secrets.get("GOOGLE_CREDENTIALS_JSON") or os.getenv("GOOGLE_CREDENTIALS_JSON")
     token_json = secrets.get("GOOGLE_TOKEN_JSON") or os.getenv("GOOGLE_TOKEN_JSON")
+    gmail_token_json = secrets.get("GOOGLE_GMAIL_TOKEN_JSON") or os.getenv("GOOGLE_GMAIL_TOKEN_JSON")
     
+    # Create google-docs-mcp subdirectory for XDG config spec
+    mcp_config_dir = os.path.join(root_dir, "google-docs-mcp")
+    os.makedirs(mcp_config_dir, exist_ok=True)
+
     has_creds = False
     if creds_json:
         with open(os.path.join(root_dir, "credentials.json"), "w") as f:
@@ -167,11 +172,37 @@ def main():
     if token_json:
         with open(os.path.join(root_dir, "token.json"), "w") as f:
             f.write(token_json)
+        with open(os.path.join(mcp_config_dir, "token.json"), "w") as f:
+            f.write(token_json)
         has_token = True
-    elif os.path.exists(os.path.join(root_dir, "token.json")):
+    elif os.path.exists(os.path.join(root_dir, "token.json")) or os.path.exists(os.path.join(mcp_config_dir, "token.json")):
+        # Ensure it exists in the config folder as well
+        if os.path.exists(os.path.join(root_dir, "token.json")) and not os.path.exists(os.path.join(mcp_config_dir, "token.json")):
+            try:
+                import shutil
+                shutil.copy2(os.path.join(root_dir, "token.json"), os.path.join(mcp_config_dir, "token.json"))
+            except Exception:
+                pass
         has_token = True
+        
+    has_gmail_token = False
+    if gmail_token_json:
+        with open(os.path.join(root_dir, "token_gmail.json"), "w") as f:
+            f.write(gmail_token_json)
+        with open(os.path.join(mcp_config_dir, "token_gmail.json"), "w") as f:
+            f.write(gmail_token_json)
+        has_gmail_token = True
+    elif os.path.exists(os.path.join(root_dir, "token_gmail.json")) or os.path.exists(os.path.join(mcp_config_dir, "token_gmail.json")):
+        if os.path.exists(os.path.join(root_dir, "token_gmail.json")) and not os.path.exists(os.path.join(mcp_config_dir, "token_gmail.json")):
+            try:
+                import shutil
+                shutil.copy2(os.path.join(root_dir, "token_gmail.json"), os.path.join(mcp_config_dir, "token_gmail.json"))
+            except Exception:
+                pass
+        has_gmail_token = True
     
-    deliver_mcp = has_creds and has_token
+    # We can run MCP flow if credentials exist and at least one token exists
+    deliver_mcp = has_creds and (has_token or has_gmail_token)
 
     # Sidebar
     st.sidebar.markdown("<h1 style='color: #00D09C; font-family: \"Outfit\", \"Inter\", sans-serif; font-weight: 800; margin-top: -30px; margin-bottom: 20px; font-size: 2.5rem;'>groww</h1>", unsafe_allow_html=True)
