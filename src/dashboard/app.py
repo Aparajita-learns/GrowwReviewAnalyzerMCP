@@ -145,8 +145,7 @@ def main():
     st.subheader("Actionable Insights from Customer Reviews")
 
     # Sidebar
-    st.sidebar.image("https://groww.in/logo-groww-dark.60f47e3a.svg", width=150)
-    st.sidebar.title("Controls")
+    st.sidebar.markdown("<h1 style='color: #00D09C; font-family: \"Outfit\", \"Inter\", sans-serif; font-weight: 800; margin-top: -30px; margin-bottom: 20px; font-size: 2.5rem;'>groww</h1>", unsafe_allow_html=True)
     
     # Run analysis dynamically from Streamlit UI
     run_analysis_btn = st.sidebar.button("Analyse Last Week's Reviews 📈", use_container_width=True)
