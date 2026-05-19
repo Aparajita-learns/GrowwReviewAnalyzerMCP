@@ -163,12 +163,47 @@ def main():
                 from agent.orchestrator import PulseOrchestrator
                 from datetime import datetime
                 
+                # Check for secrets to dynamically build credentials files
+                root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+                secrets = {}
+                try:
+                    secrets = st.secrets
+                except Exception:
+                    pass
+                
+                creds_json = secrets.get("GOOGLE_CREDENTIALS_JSON") or os.getenv("GOOGLE_CREDENTIALS_JSON")
+                token_json = secrets.get("GOOGLE_TOKEN_JSON") or os.getenv("GOOGLE_TOKEN_JSON")
+                
+                has_creds = False
+                if creds_json:
+                    with open(os.path.join(root_dir, "credentials.json"), "w") as f:
+                        f.write(creds_json)
+                    has_creds = True
+                elif os.path.exists(os.path.join(root_dir, "credentials.json")):
+                    has_creds = True
+                    
+                has_token = False
+                if token_json:
+                    with open(os.path.join(root_dir, "token.json"), "w") as f:
+                        f.write(token_json)
+                    has_token = True
+                elif os.path.exists(os.path.join(root_dir, "token.json")):
+                    has_token = True
+                
+                # Enable MCP delivery only if both creds and token are successfully written or exist
+                deliver_mcp = has_creds and has_token
+                
+                if deliver_mcp:
+                    st.info("Google credentials detected. App will update the Google Doc and send email notifications via MCP.")
+                else:
+                    st.warning("Google credentials not configured in secrets. Run will write to local dashboard database only.")
+                
                 # Use current week
                 week = datetime.now().strftime("%Y-W%V")
                 
                 async def run_async():
                     orchestrator = PulseOrchestrator("Groww", week)
-                    await orchestrator.run(force=True, deliver_mcp=False)
+                    await orchestrator.run(force=True, deliver_mcp=deliver_mcp)
                     
                 asyncio.run(run_async())
                 st.success("Analysis completed successfully! Reloading...")
