@@ -37,7 +37,7 @@
 
         <div class="footer">
             Generated automatically by GrowwReviewAnalyzerMCP<br>
-            Cost of this run: ${{ "%.4f"|format(summary.metrics.total_cost) }}
+            Cost of this run: ${{ "%.4f"|format(summary.metrics.get('total_cost', 0.0) or 0.0) }}
         </div>
     </div>
 </body>

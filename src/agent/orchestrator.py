@@ -87,6 +87,22 @@ class PulseOrchestrator:
             if label not in clusters_data: clusters_data[label] = []
             clusters_data[label].append(all_reviews[idx])
 
+        # Fallback grouping if clustering failed or produced too few clusters (e.g., due to embedding quota limits)
+        usable_clusters = [k for k in clusters_data.keys() if k != -1 and len(clusters_data[k]) > 0]
+        if len(usable_clusters) < 2:
+            print("Clustering produced too few clusters. Creating local fallback keyword-based groups...")
+            fallback_groups = {0: [], 1: [], 2: []}
+            for r in all_reviews:
+                content = r['content'].lower()
+                if any(w in content for w in ['charge', 'fee', 'money', 'cost', 'brokerage', 'payment']):
+                    fallback_groups[0].append(r)
+                elif any(w in content for w in ['slow', 'speed', 'server', 'update', 'crash', 'glitch', 'login', 'loading']):
+                    fallback_groups[1].append(r)
+                else:
+                    fallback_groups[2].append(r)
+            # Filter out empty fallback groups
+            clusters_data = {k: v for k, v in fallback_groups.items() if len(v) > 0}
+
         # 5. Summarization
         print("Phase 4: Generating AI insights...")
         summary = summarize_pulse(self.product_name, self.iso_week, clusters_data)

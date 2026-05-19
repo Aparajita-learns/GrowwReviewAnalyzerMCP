@@ -152,10 +152,8 @@ class LLMClient:
             response = model.generate_content(prompt)
             text = response.text
         except Exception as e:
-            if "429" in str(e) or "404" in str(e):
-                print(f"  - AI Quota/Model Error: Switching to Local Summarizer.")
-                return self.local.summarize(reviews)
-            raise e
+            print(f"  - AI Generation failed ({e}). Switching to Local Summarizer.")
+            return self.local.summarize(reviews)
         
         # Robust JSON extraction
         import re
