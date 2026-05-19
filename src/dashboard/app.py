@@ -280,7 +280,6 @@ def main():
                 try:
                     import asyncio
                     import sys
-                    import os
                     
                     # Add src to path if not present
                     src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
