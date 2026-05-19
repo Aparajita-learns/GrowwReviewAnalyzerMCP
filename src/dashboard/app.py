@@ -183,8 +183,10 @@ def main():
         st.warning("No data found in the database. Click 'Analyse Last Week's Reviews' in the sidebar to run the analysis and populate the database!")
         return
 
-    st.sidebar.title("Filters")
-    product = st.sidebar.selectbox("Product", df['source'].unique() if not df.empty else ["Groww"])
+    # Real Themes from DB fetched early for visual representation
+    themes = get_themes()
+    if isinstance(themes, tuple):
+        themes = themes[0]
     
     # Top Stats
     col1, col2, col3, col4 = st.columns(4)
@@ -213,32 +215,45 @@ def main():
             x=rating_counts.index, 
             y=rating_counts.values,
             labels={'x': 'Rating', 'y': 'Count'},
-            color_discrete_sequence=['#00d09c']
+            color_discrete_sequence=['#00D09C']
         )
-        fig.update_layout(template="plotly_dark", plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+        fig.update_layout(
+            template="plotly_white", 
+            plot_bgcolor='rgba(0,0,0,0)', 
+            paper_bgcolor='rgba(0,0,0,0)',
+            font=dict(color="#121212")
+        )
         st.plotly_chart(fig, use_container_width=True)
 
     with c2:
-        st.write("### Review Volume by Source")
-        source_counts = df['source'].value_counts()
-        fig_pie = px.pie(
-            values=source_counts.values, 
-            names=source_counts.index,
-            hole=0.4,
-            color_discrete_sequence=['#00d09c', '#00a07c']
-        )
-        fig_pie.update_layout(template="plotly_dark", plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
-        st.plotly_chart(fig_pie, use_container_width=True)
+        st.write("### Theme Distribution")
+        if themes:
+            theme_names = [t['name'][:30] + "..." if len(t['name']) > 30 else t['name'] for t in themes]
+            theme_counts = [t['review_count'] for t in themes]
+            # Groww-themed green color palette
+            colors = ['#00D09C', '#00b88a', '#009e75', '#008562', '#006c4f']
+            
+            fig_pie = px.pie(
+                values=theme_counts, 
+                names=theme_names,
+                hole=0.4,
+                color_discrete_sequence=colors
+            )
+            fig_pie.update_layout(
+                template="plotly_white", 
+                plot_bgcolor='rgba(0,0,0,0)', 
+                paper_bgcolor='rgba(0,0,0,0)',
+                font=dict(color="#121212"),
+                legend=dict(orientation="h", yanchor="bottom", y=-0.5, xanchor="center", x=0.5)
+            )
+            st.plotly_chart(fig_pie, use_container_width=True)
+        else:
+            st.info("No theme distribution to show. Run the analysis first!")
 
     st.markdown("---")
 
-    # Real Themes from DB
+    # Display Themes list
     st.write("## 💡 Top AI-Generated Themes")
-    
-    themes, run_info = get_themes() if isinstance(get_themes(), tuple) else (get_themes(), None)
-    # Handle older versions where get_themes returned only a list
-    if isinstance(themes, tuple):
-        themes = themes[0]
     
     if not themes:
         st.info("No AI themes generated yet. Running the analyzer will populate this section.")
